@@ -130,6 +130,28 @@ int heuristic1(State state, State goal) {
     return count;
 }
 
+// tim tong so buoc de di chuyen cac o sai ve dung vi tri
+int heuristic2(State state, State goal) {
+	int count = 0;
+	/* 
+		- row, col: vi tri cua o dang xet trong state
+		- row_g, col_g: vi tri cua o dang xet trong goal
+	*/
+	int row, col, row_g, col_g;
+	for (row=0; row < ROWS; row++) 
+		for (col=0; col < COLS; col++)
+			if (state.eightPuzzle[row][col] != EMPTY)
+				for (row_g=0; row_g < ROWS; row_g++)
+					for (col_g=0; col_g < COLS; col_g++)
+					/* tinh so buoc di chuyen mot o ve vi tri dung */
+						if (state.eightPuzzle[row][col] == goal.eightPuzzle[row_g][col_g]) {
+							count += abs(row - row_g) + abs(col - col_g);
+							col_g = COLS; // ket thuc vong lap col_g
+							row_g = ROWS; // key thuc vong lap row_g
+						}
+	return count;
+}
+
 /* khai bao cau truc Node */
 typedef struct Node {
 	State state;
