@@ -129,6 +129,28 @@ int heuristic1(State state, State goal) {
     return count;
 }
 
+// tim tong so buoc de di chuyen cac o sai ve dung vi tri
+int heuristic2(State state, State goal) {
+	int count = 0;
+	/* 
+		- row, col: vi tri cua o dang xet trong state
+		- row_g, col_g: vi tri cua o dang xet trong goal
+	*/
+	int row, col, row_g, col_g;
+	for (row=0; row < ROWS; row++) 
+		for (col=0; col < COLS; col++)
+			if (state.eightPuzzle[row][col] != EMPTY)
+				for (row_g=0; row_g < ROWS; row_g++)
+					for (col_g=0; col_g < COLS; col_g++)
+					/* tinh so buoc di chuyen mot o ve vi tri dung */
+						if (state.eightPuzzle[row][col] == goal.eightPuzzle[row_g][col_g]) {
+							count += abs(row - row_g) + abs(col - col_g);
+							col_g = COLS; // ket thuc vong lap col_g
+							row_g = ROWS; // key thuc vong lap row_g
+						}
+	return count;
+}
+
 /* khai bao Node */
 typedef struct Node{
     State state;
@@ -186,19 +208,22 @@ Node* bestFS(State s, State goal){
 				newNode->parent = node;
 				newNode->heuristic = heuristic1(newstate, goal);
 
-				//kiem tra trang thai moi
+				//kiem tra trang thai moi trong hai danh sach Open & Close
 				vector<Node*>::iterator pos_Open, pos_Close;
 				Node* nodeOpen = findState(newstate, Open, &pos_Open);
 				Node* nodeClose = findState(newstate, Close, &pos_Close);
 
+				/* neu trang thai moi chua co trong Open & Close => them trang thai moi vao Open */
 				if(nodeOpen == NULL && nodeClose == NULL)
 					Open.push_back(newNode);
 
+				/* neu trang thai moi da ton tai trong Open va co gia tri heu tot hon => them trang thai moi vao Open */
 				else if(nodeOpen != NULL && nodeOpen->heuristic > newNode->heuristic){
 					Open.erase(pos_Open);
                     Open.push_back(newNode);
 				}
-
+				
+				/* neu trang thai moi da ton tai trong Close va co gia tri heu tot hon => them trang thai moi vao Open */
 				else if(nodeClose != NULL && nodeClose->heuristic > newNode->heuristic){
 					Close.erase(pos_Close);
                     Open.push_back(newNode);
